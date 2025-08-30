@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>News App</title>
+  <style>
+    body {
+      background: #121212;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 10px;
+    }
+    h1 {
+      text-align: center;
+    }
+    #searchBox {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 15px;
+    }
+    #searchInput {
+      width: 250px;
+      padding: 8px;
+      border-radius: 4px;
+      border: none;
+      margin-right: 5px;
+    }
+    button {
+      padding: 8px 12px;
+      background: #4cafef;
+      color: #000;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .news-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 15px;
+    }
+    .news-card {
+      background: #1e1e1e;
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+      display: flex;
+      flex-direction: column;
+    }
+    .news-card img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+    }
+    .news-card .content {
+      padding: 10px;
+      flex: 1;
+    }
+    .news-card h3 {
+      margin: 0 0 5px;
+      font-size: 16px;
+    }
+    .news-card p {
+      font-size: 14px;
+      color: #bbb;
+    }
+    .news-card a {
+      text-decoration: none;
+      background: #4cafef;
+      padding: 6px 10px;
+      color: #000;
+      border-radius: 4px;
+      display: inline-block;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+  <h1>News Aggregator</h1>
+  <div id="searchBox">
+    <input type="text" id="searchInput" placeholder="Search news">
+    <button onclick="searchNews()">Search</button>
+  </div>
+  <div class="news-container" id="newsContainer"></div>
+
+  <script>
+    const apiKey = "f3b4476aa6f94d74b4d07ca8cf81f54d";
+    const newsContainer = document.getElementById("newsContainer");
+
+    async function fetchNews(query="technology") {
+      newsContainer.innerHTML = "<p>Loading...</p>";
+      let url = `https://newsapi.org/v2/everything?q=${query}&apiKey=${apiKey}`;
+      try {
+        let res = await fetch(url);
+        let data = await res.json();
+        if(data.articles.length === 0) {
+          newsContainer.innerHTML = "<p>No news found.</p>";
+          return;
+        }
+        displayNews(data.articles);
+      } catch(e) {
+        newsContainer.innerHTML = "<p>Failed to load news.</p>";
+      }
+    }
+
+    function displayNews(articles) {
+      newsContainer.innerHTML = "";
+      articles.forEach(a => {
+        let card = document.createElement("div");
+        card.className = "news-card";
+        card.innerHTML = `
+          <img src="${a.urlToImage || 'https://via.placeholder.com/300'}" />
+          <div class="content">
+            <h3>${a.title}</h3>
+            <p>${a.description || ''}</p>
+            <a href="${a.url}" target="_blank">Read More</a>
+          </div>`;
+        newsContainer.appendChild(card);
+      });
+    }
+
+    function searchNews() {
+      let q = document.getElementById("searchInput").value;
+      fetchNews(q);
+    }
+
+    fetchNews();
+  </script>
+</body>
+</html>
